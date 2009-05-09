@@ -43,6 +43,33 @@ role Filesystem::Fuse::Readable {
     }
 }
 
+role Filesystem::Fuse::Writable with Filesystem::Fuse::Readable {
+    requires 'mknod';
+    requires 'mkdir';
+    requires 'unlink';
+    requires 'rmdir';
+    requires 'symlink';
+    requires 'rename';
+    requires 'link';
+    requires 'chmod';
+    requires 'chown';
+    requires 'truncate';
+    requires 'utime';
+    requires 'write';
+    requires 'fsync';
+}
+
+role Filesystem::Fuse::Attributes::Readable {
+    requires 'getxattr';
+    requires 'listxattr';
+}
+
+role Filesystem::Fuse::Attributes::Writable
+  with Filesystem::Fuse::Attributes::Readable {
+    requires 'setxattr';
+    requires 'removexattr';
+}
+
 role MooseX::Runnable::Fuse with MooseX::Getopt {
     use MooseX::Types::Moose qw(Bool);
     use MooseX::Types::Path::Class qw(Dir);
@@ -75,6 +102,25 @@ role MooseX::Runnable::Fuse with MooseX::Getopt {
             push @method_map, map { $_ => $subify->($_) } qw{
                 getattr readlink getdir open read
                 release statfs flush
+            };
+        }
+
+        if($class->does_role('Filesystem::Fuse::Writable')){
+            push @method_map, map { $_ => $subify->($_) } qw{
+                mknod mkdir unlink rmdir symlink rename link
+                chmod chown truncate utime write fsync
+            };
+        }
+
+        if($class->does_role('Filesystem::Fuse::Attributes::Readable')){
+            push @method_map, map { $_ => $subify->($_) } qw{
+                getxattr listxattr
+            };
+        }
+
+        if($class->does_role('Filesystem::Fuse::Attributes::Writable')){
+            push @method_map, map { $_ => $subify->($_) } qw{
+                setxattr removexattr
             };
         }
 
