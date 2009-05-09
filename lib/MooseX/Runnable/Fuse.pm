@@ -1,10 +1,13 @@
 use MooseX::Declare;
 use Fuse;
 
+{ package MooseX::Runnable::Fuse; # For PAUSE
+  our $VERSION = 0.01;
+}
+
 role Filesystem::Fuse::Readable {
     use MooseX::Types::Moose qw(HashRef ArrayRef Defined Int);
     use MooseX::Types::Path::Class qw(File Dir);
-    use MooseX::AttributeHelpers;
     use POSIX qw(ENOENT EISDIR);
 
     require MooseX::Getopt;
@@ -70,7 +73,8 @@ role Filesystem::Fuse::Attributes::Writable
     requires 'removexattr';
 }
 
-role MooseX::Runnable::Fuse with MooseX::Getopt {
+role MooseX::Runnable::Fuse with MooseX::Getopt with MooseX::Runnable {
+
     use MooseX::Types::Moose qw(Bool);
     use MooseX::Types::Path::Class qw(Dir);
 
@@ -128,9 +132,68 @@ role MooseX::Runnable::Fuse with MooseX::Getopt {
             debug      => $self->is_debug ? 1 : 0,
             mountpoint => $self->mountpoint->stringify,
             @method_map,
-        );
+        ) || 0;
 
     }
 }
 
 1;
+
+__END__
+
+=head1 NAME
+
+MooseX::Runnable::Fuse - implement a FUSE filesystem as a Moose class
+
+=head1 SYNOPSIS
+
+    use MooseX::Declare;
+
+    class Filesystem with MooseX::Runnable::Fuse
+                     with Filesystem::Fuse::Readable {
+        use MooseX::Types::Path::Class qw(File);
+
+        method getattr(File $file){
+            ...
+            return (0, 0, ...);
+        }
+
+        ...
+    }
+
+From the command-line:
+
+    mx-run Filesystem --mountpoint /mnt/filesystem --debug # or omit --debug
+
+=head1 DESCRIPTION
+
+This role allows you to make a class into a runnable (via
+L<MooseX::Runnable|MooseX::Runnable> Fuse filesystem.  You also get
+four other roles to help this module determine how to run your
+filesystem; C<Filesystem::Fuse::Readable>,
+C<Filesystem::Fuse::Writable>,
+C<Filesystem::Fuse::Attributes::Readable>, and
+C<Filesystem::Fuse::Attributes::Writable>.  Composing these roles into
+your class will ensure that you implement the correct methods to get
+the functionality you desire.
+
+=head1 METHODS
+
+=head2 run
+
+Start a process implementing the filesystem, mount the filesystem.
+
+=head1 SEE ALSO
+
+L<Fuse>
+
+L<MooseX::Runnable> (for details on the C<MooseX::Runnable> framework)
+
+=head1 AUTHOR
+
+Jonathan Rockway C<< <jrockway@cpan.org> >>
+
+=head1 COPYRIGHT
+
+This module is free software, you may redistribute it under the same
+terms as Perl itself.
