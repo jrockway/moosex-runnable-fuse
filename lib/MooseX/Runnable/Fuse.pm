@@ -153,7 +153,7 @@ MooseX::Runnable::Fuse - implement a FUSE filesystem as a Moose class
                      with Filesystem::Fuse::Readable {
         use MooseX::Types::Path::Class qw(File);
 
-        method getattr(File $file){
+        method getattr(File $file does coerce){
             ...
             return (0, 0, ...);
         }
