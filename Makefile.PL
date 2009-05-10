@@ -2,7 +2,7 @@ use inc::Module::Install;
 
 name 'MooseX-Runnable-Fuse';
 all_from 'lib/MooseX/Runnable/Fuse.pm';
-repository 'http://github.com/jrockway/moosex-runnable-ruse';
+repository 'http://github.com/jrockway/moosex-runnable-fuse';
 
 requires 'MooseX::Declare';
 requires 'MooseX::Getopt';
