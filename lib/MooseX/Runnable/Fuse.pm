@@ -75,7 +75,7 @@ role Filesystem::Fuse::Attributes::Writable
 
 role MooseX::Runnable::Fuse with MooseX::Getopt with MooseX::Runnable {
 
-    use MooseX::Types::Moose qw(Bool);
+    use MooseX::Types::Moose qw(Bool Str);
     use MooseX::Types::Path::Class qw(Dir);
 
     has 'mountpoint' => (
