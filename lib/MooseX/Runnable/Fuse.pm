@@ -2,7 +2,7 @@ use MooseX::Declare;
 use Fuse;
 
 { package MooseX::Runnable::Fuse; # For PAUSE
-  our $VERSION = 0.01;
+  our $VERSION = 0.02;
 }
 
 role Filesystem::Fuse::Readable {
@@ -85,6 +85,13 @@ role MooseX::Runnable::Fuse with MooseX::Getopt with MooseX::Runnable {
         coerce   => 1,
     );
 
+    has 'mountopts' => (
+        is       => 'ro',
+        isa      => Str,
+        default  => sub { "" },
+        required => 0,
+    );
+
     has 'debug' => (
         init_arg => 'debug',
         reader   => 'is_debug',
@@ -131,6 +138,7 @@ role MooseX::Runnable::Fuse with MooseX::Getopt with MooseX::Runnable {
         return Fuse::main( # no idea what the return value actually means
             debug      => $self->is_debug ? 1 : 0,
             mountpoint => $self->mountpoint->stringify,
+            mountopts  => $self->mountopts,
             @method_map,
         ) || 0;
 
